@@ -22,6 +22,9 @@ misc/
 *.tmp
 *.swp
 
+# Ignore all xmls
+*.xml
+
 # Ignore IDE/editor configuration files
 .idea/
 .vscode/
