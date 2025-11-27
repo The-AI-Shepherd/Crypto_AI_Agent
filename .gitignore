@@ -1,6 +1,5 @@
 # Ignore virtual environment
 .venv/
-.idea/
 
 # Ignore database and database-related files
 instance/
