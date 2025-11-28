@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form, render_field %}
+
+{% block title %}Crypto Agent · The AI Shepherd{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/crypto.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="container my-5 shadow p-4 bg-body-tertiary rounded border border-1">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Crypto AI Agent</h4>
+
+        <a href="{{ url_for('update_price_data', source=request.endpoint) }}" class="btn btn-primary">
+            Update Prices
+        </a>
+
+        <a href="{{ url_for('crypto_tracker') }}" class="btn btn-outline-secondary btn-sm">
+            Historical Price Tracker
+        </a>
+      </div>
+
+      <!--Disclaimer-->
+      <p>
+          <button class="btn btn-danger" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDisclaimer" aria-expanded="false" aria-controls="collapseDisclaimer">
+              Full Legal Disclaimer (Tap to Expand)
+          </button>
+      </p>
+      <div class="collapse" id="collapseDisclaimer">
+          <div class="card card-body">
+              <p>This AI system provides information and analysis for educational and informational purposes only. It is not financial, investment, legal, or tax advice. Cryptocurrency markets are highly volatile and involve significant risk.</p>
+              <p>You should always verify information independently and consult a qualified financial professional before making investment decisions.</p>
+
+              <p>Past performance is not indicative of future results.</p>
+              <p class="fw-bolder">Use of this tool is at your own risk. The developer and system provider are not responsible for losses, inaccurate data, or decisions made based on the output.</p>
+          </div>
+      </div>
+
+      {% include 'flask-flash-template.html' %}
+      <hr>
+      <form method="POST" action="{{ url_for('crypto_agent') }}">
+        {{ form.hidden_tag() }}
+        {{ render_field(form.query) }}
+        <button type="submit" class="btn btn-primary loading-button-form">
+            {{ form.submit.label.text }}
+        </button>
+      </form>
+      {% if crypto_analysis_answer %}
+          <h2 class="pb-2">Response</h2>
+            <div class="container text-start p-3">
+                {{ crypto_analysis_answer|safe }}
+            </div>
+      {% endif %}
+      {% if crypto_chart_list %}
+        <h2 class="pb-2">Charts</h2>
+            <div class="container text-start p-3">
+                {% for i, chart in enumerate(crypto_chart_list, start=1) %}
+                    <h3 class="pb-2">
+                        {{ i }} - {{ chart["chart_name"] }}
+                    </h3>
+                    {{ chart["chart_html"]|safe }}
+
+                    {% if chart["interpretation"] %}
+                    <p class="pb-2 interpretation">
+                    {{ chart["interpretation"]|safe }}
+                    </p>
+                    {% endif %}
+
+                {% endfor %}
+            </div>
+      {% endif %}
+
+      {% if crypto_analysis_answer or crypto_chart_list %}
+          <a href="{{ url_for('clear_ai_answer', source=request.endpoint) }}" class="btn btn-outline-danger">
+              Clear AI Answer
+          </a>
+      {% endif %}
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/crypto.js') }}"></script>
+{% endblock %}

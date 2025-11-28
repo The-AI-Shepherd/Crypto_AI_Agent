@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form, render_field %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container shadow-sm p-3 m-5 bg-body-tertiary rounded">
+    <div class="m-5 row align-items-start">
+        <div class="col">
+            <p>Crypto tracker shows historical prices of a chosen crypto:</p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('crypto_tracker') }}">Go to Crypto Tracker</a>
+        </div>
+        <div class="col">
+            <p>Crypto AI agent offers analysis and trade signals of supported cryptos:</p>
+            <a class="btn btn-primary btn-lg" href="{{ url_for('crypto_agent') }}">Go to Crypto AI agent</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

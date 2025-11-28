@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form, render_field %}
+
+{% block title %}Crypto Tracker  · The AI Shepherd{% endblock %}
+
+{% block styles %}
+<link href="{{ url_for('static', filename='css/crypto.css')  }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+      <div class="container mt-5 shadow p-4 bg-body-tertiary rounded border border-1">
+        <div class="d-flex justify-content-between align-items-center">
+          <h4>Crypto Tracker</h4>
+          <form method="get" action="{{ url_for('crypto_tracker') }}" class="form-inline">
+            <label for="per_page" class="mr-2">Show:
+                <a href="#"
+                   role="button"
+                   tabindex="0"
+                   onclick="event.preventDefault();"
+                   class="text-primary ms-1"
+                   data-bs-toggle="popover"
+                   data-bs-trigger="focus"
+                   data-bs-placement="right"
+                   data-bs-content="Pick the number of daily prices to show.">
+                   <i class="bi bi-info-circle"></i>
+                </a>
+            </label>
+            <select name="per_page" id="per_page" class="form-control" onchange="this.form.submit()">
+                {% for value in [7, 14, 30, 60, 180, 365] %}
+                    <option value="{{ value }}" {% if per_page|int == value %}selected{% endif %}>{{ value }}</option>
+                {% endfor %}
+            </select>
+          </form>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="h4 mb-0 fw-normal fs-4">
+                See crypto price data <strong>in USD</strong> for the past {{ history_range }} days
+            </h4>
+
+            <a href="{{ url_for('update_price_data', source=request.endpoint) }}" class="btn btn-primary">
+                Update Prices
+            </a>
+
+        </div>
+        {% include 'flask-flash-template.html' %}
+        <!--Crypto selection form-->
+        <form method="POST" action="{{ url_for('crypto_tracker') }}">
+            {{ form.hidden_tag() }}
+            {{ render_field(form.crypto_select) }}
+            <button type="submit" class="btn btn-primary loading-button-form">
+                {{ form.submit.label.text }}
+            </button>
+        </form>
+
+        <!--Price data table section-->
+        {% if coin_in_db %}
+          <div class="table-responsive">
+            <table class="table table-striped" border="1">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Symbol</th>
+                  <th>Price</th>
+                  <th>Market Cap</th>
+                  <th>Total Volume</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for index, row in enumerate(coin_in_db, start=1): %}
+                <tr>
+                  <td>{{ index }}</td>
+                  <td>{{ row.date.strftime("%d-%m-%Y") }}</td>
+                  <td>{{ row.symbol }}</td>
+                  {% if 0 < row.current_price < 100 %}
+                  <td>{{ "{:,.6f}".format(row.current_price) }}</td>
+                  {% else %}
+                  <td>{{ "{:,.2f}".format(row.current_price) }}</td>
+                  {% endif %}
+                  <td>{{ "{:,.2f}".format(row.market_cap) }}</td>
+                  <td>{{ "{:,.2f}".format(row.total_volume) }}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+            
+          <!-- Pagination widget -->
+          <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <!-- Previous Button -->
+                {% if coin_in_db.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('crypto_tracker', page=coin_in_db.prev_num, per_page=per_page, coin_id=coin_id) }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                <!-- Page Number Links -->
+                {% for num in coin_in_db.iter_pages(left_edge=2, right_edge=2) %}
+                    {% if num %}
+                        {% if num == coin_in_db.page %}
+                            <li class="page-item active">
+                                <a class="page-link" href="#">{{ num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('crypto_tracker', page=num, per_page=per_page, coin_id=coin_id) }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Next Button -->
+                {% if coin_in_db.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('crypto_tracker', page=coin_in_db.next_num, per_page=per_page, coin_id=coin_id) }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+          </nav>
+
+          <!--Price data chart section-->
+          {% if chart_html %}
+          <hr>
+          <div class="mt-5" id="chart-section">
+            <div class="d-flex justify-content-between align-items-center">
+              <h4>Price Trend</h4>
+              <form method="get" action="{{ url_for('crypto_tracker') }}" class="form-inline">
+                <label for="per_page" class="mr-2">Show:
+                    <a href="#"
+                       role="button"
+                       tabindex="0"
+                       onclick="event.preventDefault();"
+                       class="text-primary ms-1"
+                       data-bs-toggle="popover"
+                       data-bs-trigger="focus"
+                       data-bs-placement="right"
+                       data-bs-content="Pick the number of daily prices to show.">
+                       <i class="bi bi-info-circle"></i>
+                    </a>
+                </label>
+
+                <select name="per_page" id="per_page_chart" class="form-control" onchange="this.form.submit()">
+                    {% for value in [7, 14, 30, 60, 180, 365] %}
+                        <option value="{{ value }}" {% if per_page|int == value %}selected{% endif %}>{{ value }}</option>
+                    {% endfor %}
+                </select>
+                <!-- Hidden input for scrolling to chart section after refresh -->
+                <input type="hidden" name="scroll_to" value="true">
+              </form>
+            </div>
+            {{ chart_html | safe }}
+            <hr>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('crypto_agent') }}" class="btn btn-primary">
+                  Get AI-Powered Insights & Signals
+                </a>
+            </div>
+          </div>
+          {% endif %}
+        {% else %}
+        <p>No coin chosen.</p>
+        {% endif %}
+      </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/crypto.js') }}"></script>
+{% endblock %}

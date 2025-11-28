@@ -2,25 +2,18 @@
 .venv/
 
 # Ignore database and database-related files
-instance/
-chroma_databases/
-chroma_crypto_database/
+instance/*
 
 # Ignore configuration and sensitive environment files
 .env
-
-# Ignore miscellaneous files
-misc/
-
-# Ignore jpgs uploaded in dev environment
-/static/uploads/**/*.jpg
-/static/uploads/**/*.jpeg
-
 
 # Ignore logs or temporary files
 *.log
 *.tmp
 *.swp
+
+# Ignore contents of temp charts
+temp_charts/*
 
 # Ignore all xmls
 *.xml
@@ -38,9 +31,4 @@ __pycache__/
 *.pyo
 
 # Ignore text files that aren't necessary for version control
-bugs.txt
-login-test.txt
-notes for publishing
-to do.txt
-scp.txt
-/static/RAG source/
+to_do.txt

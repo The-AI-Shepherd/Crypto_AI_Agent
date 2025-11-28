@@ -1,0 +1,20 @@
+.dropdown-menu {
+    z-index: 1050;
+    position: absolute !important;
+}
+
+.navbar, .header, body {
+    overflow: visible !important;
+}
+
+.logo img {
+    height: 50px;
+    width: auto;
+    max-width: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+.tooltip-custom {
+    cursor: help
+}
