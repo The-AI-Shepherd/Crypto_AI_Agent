@@ -34,6 +34,7 @@ DATABASE_URL='sqlite:///crypto_data.db'
 
 Run the app:
 python app.py
+```
 
 ## 🧩 Usage
 - Open the Flask app in your browser (http://127.0.0.1:5000)
