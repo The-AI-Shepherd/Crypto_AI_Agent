@@ -43,7 +43,7 @@ python app.py
 - Use the Update Prices button to refresh historical data
 - Charts are stored temporarily per session and cleared automatically
 
-##⚡ Notes
+## ⚡ Notes
 - Requires OPENAI_API_KEY, COIN_GECKO_API, and NEWS_API to fetch AI responses, price data, and news
 - The AI agent uses LangGraph under the hood to decide which tools to run based on user queries
 - Temporary chart JSON files are stored in temp_charts and cleaned up automatically
